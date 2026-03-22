@@ -27,7 +27,7 @@ provider "libvirt" {
 resource "libvirt_volume" "rhel_base" {
   name   = "almalinux-9-base.qcow2"
   pool   = "default"
-  source = "/var/lib/libvirt/images/almalinux-9-cloud-base.qcow2" 
+  source = var.base_image_path
   format = "qcow2"
 }
 
