@@ -1,0 +1,35 @@
+---
+- name: Verify AAP Node Provisioning
+  hosts: all
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    - name: 1. Ping the new VM to verify SSH and Python are working
+      ansible.builtin.ping:
+
+    - name: 2. Verify the OS is an Enterprise Linux 9 clone (Alma/RHEL)
+      ansible.builtin.assert:
+        that:
+          - ansible_os_family == "RedHat"
+          - ansible_distribution_major_version == "9"
+        success_msg: "Confirmed: OS is {{ ansible_distribution }} {{ ansible_distribution_version }}"
+        fail_msg: "OS Mismatch! Found {{ ansible_distribution }}."
+
+    - name: 3. Verify the system hostname was set correctly
+      ansible.builtin.assert:
+        that:
+          - ansible_fqdn == "aap26.home.lab"
+        success_msg: "Confirmed: Hostname is aap26.home.lab"
+
+    - name: 4. Check if the AAP installer directory was created in %post
+      ansible.builtin.stat:
+        path: /opt/aap-installer
+      register: dir_check
+
+    - name: 5. Assert the directory exists and is valid
+      ansible.builtin.assert:
+        that:
+          - dir_check.stat.exists
+          - dir_check.stat.isdir
+        success_msg: "Confirmed: /opt/aap-installer is ready."
